@@ -1,7 +1,6 @@
 from core.context import SpinContext
 from core.rng import RNG
-from steps.build_board import BuildBoardStep
-from steps.evaluate_win_step import EvaluateWinsStep
+from engines.generic_engine import GenericEngine
 
 config = {
     "rows": 3,
@@ -11,15 +10,13 @@ config = {
     "payouts": {"A": 1, "B": 2, "C": 5, "D": 10}
 }
 
-ctx = SpinContext(bet=1.0, seed=1234, config=config)
+ctx = SpinContext(bet=1.0, seed=42, config=config)
 ctx.rng = RNG(ctx.seed)
 
-# Pipeline simple
-BuildBoardStep().run(ctx)
-EvaluateWinsStep().run(ctx)
+engine = GenericEngine()
 
-print("Board:")
-for row in ctx.board:
-    print(row)
-print("\nGanancias:", ctx.wins)
-print("Total win:", ctx.total_win)
+# Puedes pedir el resultado como dict o JSON
+result_dict = engine.spin(ctx)
+result_json = engine.spin(ctx, as_json=True)
+
+print(result_json)

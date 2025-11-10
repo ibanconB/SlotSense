@@ -1,4 +1,5 @@
-
+import json
+from itertools import chain
 
 
 class SpinContext:
@@ -25,3 +26,20 @@ class SpinContext:
         # --- Salida final ---
         self.payout = 0  # créditos finales ganados
         self.state_delta = {}  # cambios a persistir
+
+    def to_dict(self):
+        """Convierte el contexto en un diccionario limpio, listo para serializar a JSON."""
+
+        flattened_board = list(chain.from_iterable(self.board)) if self.board else []
+
+        return {
+                "reelLayout": flattened_board,
+                "creditsWon": self.total_win,
+                "bet": self.bet,
+                "wins": self.wins,
+                "events": self.events,
+            }
+
+    def to_json(self):
+        """Devuelve el contexto serializado en formato JSON."""
+        return json.dumps(self.to_dict(), separators=(',', ':'))

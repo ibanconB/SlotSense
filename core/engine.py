@@ -6,7 +6,7 @@ class BaseEngine:
         self.steps = steps
 
 
-    def spin(self, context):
+    def spin(self,  context, as_json=False):
         """Ejecuta cada Step en orden, pasando el mismo contexto"""
 
         for step in self.steps:
@@ -14,4 +14,5 @@ class BaseEngine:
 
         #Despues de ejecutar los Steps, tenemos el resultado
         context.payout = context.total_win
-        return context
+
+        return context.to_json() if as_json else context.to_dict()
