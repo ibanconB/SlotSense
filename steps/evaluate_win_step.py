@@ -6,6 +6,8 @@ class EvaluateWinsStep(Step):
         Calcula valor de payout definido en config
     """
 
+    #TODO: hay que crear metodos para diferentes formas de ganar
+
     name = "evaluate_wins"
 
     def run(self, context):
