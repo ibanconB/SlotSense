@@ -36,7 +36,6 @@ class SpinContext:
                 "reelLayout": flattened_board,
                 "creditsWon": self.total_win,
                 "bet": self.bet,
-                "wins": self.wins,
                 "events": self.events,
             }
 
