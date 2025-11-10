@@ -3,6 +3,7 @@ from core.context import SpinContext
 from core.rng import RNG
 from engines.generic_engine import GenericEngine
 
+#TODO: hay que hacer que reciba argumentos para 1. Spin normal 2. Miles de spins
 
 CONFIG = {
     "rows": 3,
