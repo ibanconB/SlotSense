@@ -9,6 +9,8 @@ class BuildBoardStep(Step):
     name = "build_board"
 
     def run(self, ctx):
+        rng = ctx.rng.fork(self.__class__.__name__)
+
         rows = ctx.config.get("rows", 3)
         cols = ctx.config.get("cols", 3)
         symbols = ctx.config.get("symbols", [])
@@ -30,9 +32,12 @@ class BuildBoardStep(Step):
         for r in range(rows):
             row = []
             for c in range(cols):
-                symbol = ctx.rng.weighted_choice(seq)
+                symbol = rng.weighted_choice(seq)
                 row.append(symbol)
             board.append(row)
 
         ctx.board = board
+        if getattr(ctx.rng, "debug", False):
+            ctx.rng.trace.extend(rng.trace)
+            ctx.rng.forks[self.__class__.__name__] = rng.seed
         ctx.events.append("board_built")

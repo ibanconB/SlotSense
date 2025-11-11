@@ -14,6 +14,7 @@ class RNG:
         self.random= random.Random(seed)
         self.debug = debug
         self.trace = []
+        self.forks = {}
 
     # =============================
     # INTERNAL
@@ -63,4 +64,9 @@ class RNG:
         """
         h = hashlib.blake2s(f"{self.seed}|{tag}".encode(), digest_size=8).hexdigest()
         new_seed = int(h, 16)
+        if self.debug:
+            if not hasattr(self, "forks"):
+                self.forks = {}
+            self.forks[tag] = new_seed
+
         return RNG(new_seed, debug=self.debug)

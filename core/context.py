@@ -42,6 +42,7 @@ class SpinContext:
         }
         if getattr(self.rng, "debug", False):
             data["rngTrace"] = getattr(self.rng, "trace", [])
+            data["subSeeds"] = getattr(self.rng, "forks", {})
 
         return data
 
