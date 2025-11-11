@@ -7,11 +7,12 @@ config = {
     "cols": 3,
     "symbols": ["A", "B", "C", "D"],
     "weights": ["50", "30", "15", "5"],
-    "payouts": {"A": 1, "B": 2, "C": 5, "D": 10}
+    "payouts": {"A": 1, "B": 2, "C": 5, "D": 10},
+    "debug": False
 }
 
-ctx = SpinContext(bet=1.0, seed=3252, config=config)
-ctx.rng = RNG(ctx.seed)
+ctx = SpinContext(bet=1.0, config=config)
+ctx.rng = RNG(ctx.seed, debug=ctx.config.get("debug", False))
 
 engine = GenericEngine()
 

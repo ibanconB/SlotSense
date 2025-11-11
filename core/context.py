@@ -1,4 +1,5 @@
 import json
+import secrets
 from itertools import chain
 
 
@@ -10,10 +11,10 @@ class SpinContext:
             - Resultado final (payout, state_delta)
     """
 
-    def __init__(self, bet, seed, config=None, state=None):
+    def __init__(self, bet, seed=None, config=None, state=None):
         # --- Entradas ---
         self.bet = bet  # apuesta total
-        self.seed = seed  # semilla usada por el RNG
+        self.seed = seed  or secrets.randbits(64) # semilla usada por el RNG (random si no se pasa una seed)
         self.config = config or {}  # reels, modo de juego, etc.
         self.state = state or {}  # estado persistente (features, contadores...)
 
@@ -32,12 +33,17 @@ class SpinContext:
 
         flattened_board = list(chain.from_iterable(self.board)) if self.board else []
 
-        return {
-                "reelLayout": flattened_board,
-                "creditsWon": self.total_win,
-                "bet": self.bet,
-                "events": self.events,
-            }
+        data = {
+            "reelLayout": flattened_board,
+            "creditsWon": self.total_win,
+            "bet": self.bet,
+            "events": self.events,
+            "generatedSequence": self.seed,
+        }
+        if getattr(self.rng, "debug", False):
+            data["rngTrace"] = getattr(self.rng, "trace", [])
+
+        return data
 
     def to_json(self):
         """Devuelve el contexto serializado en formato JSON."""

@@ -1,58 +1,66 @@
+import hashlib
 import random
 
 
 class RNG:
     """
-    Generador de numeros aleatorios/
-    Permite reproducir spins usando la misma seed
+    RNG determinista con traza opcional de llamadas (debug mode).
+    - Si debug=False: rendimiento normal, sin traza.
+    - Si debug=True: registra cada sorteo con etiqueta y valor.
     """
 
-    def __init__(self, seed:int):
+    def __init__(self, seed:int, debug = False):
         self.seed= seed
         self.random= random.Random(seed)
+        self.debug = debug
+        self.trace = []
 
-    def rand(self):
-        "devuelve float entre 0.0 y 1.0"
-        return  self.random.random()
+    # =============================
+    # INTERNAL
+    # =============================
 
-    def randint(self, a:int, b:int):
-        """Return int between a and b inclusive"""
-        return self.random.randint(a,b)
+    def _record(self, label: str, value):
+        """Registra valor si debug=True."""
+        if self.debug:
+            self.trace.append((label, value))
+        return value
 
-    def choice(self,seq):
-        """Return random element from a sequence"""
-        return self.random.choice(seq)
 
-    def shuffle(self, seq):
-        """Shuffle a list (in-place)"""
-        self.random.shuffle(seq)
-        return seq
 
-    def weighted_choice(self, seq):
+    # =============================
+    # RNG
+    # =============================
+    def rand(self, label="rand"):
+        """Devuelve un float entre 0 y 1."""
+        return self._record(label, self.random.random())
+
+    def randint(self, a, b, label="randint"):
+        """Devuelve un entero entre a y b."""
+        return self._record(label, self.random.randint(a, b))
+
+    def choice(self, seq, label="choice"):
+        """Devuelve un elemento aleatorio de la secuencia."""
+        return self._record(label, self.random.choice(seq))
+
+    def weighted_choice(self, seq, label="weighted_choice"):
         """
-        Devuelve un elemento de seq según sus probabilidades relativas.
-
-        Ejemplo:
-            seq = (
-                ('A', '50.00'),
-                ('B', '40.00'),
-                ('C', '10.00')
-            )
-        'A' tiene un 50% de probabilidad, 'B' un 40%, 'C' un 10%.
+        Selecciona un elemento de seq = [(valor, peso), ...]
+        según su probabilidad relativa.
         """
+        total = sum(float(p) for _, p in seq)
+        pick = self.rand(label=f"{label}.pick") * total
+        acc = 0.0
+        for v, p in seq:
+            acc += float(p)
+            if pick < acc:
+                return self._record(label, v)
+        return self._record(label, seq[-1][0])  # fallback
 
-        if not seq:
-            raise ValueError("weighted_choice requiere una secuencia no vacía")
-
-        # Normalizar las probabilidades
-        total = sum(float(prob) for _, prob in seq)
-        pick = self.random.random() * total
-        cumulative = 0.0
-
-        for value, prob in seq:
-            cumulative += float(prob)
-            if pick < cumulative:
-                return value
-
-        # Por si acaso (errores de redondeo)
-        return seq[-1][0]
+    def fork(self, tag: str):
+        """
+        Crea un sub-RNG derivado de la semilla actual + tag.
+        Permite obtener secuencias deterministas por Step.
+        """
+        h = hashlib.blake2s(f"{self.seed}|{tag}".encode(), digest_size=8).hexdigest()
+        new_seed = int(h, 16)
+        return RNG(new_seed, debug=self.debug)
