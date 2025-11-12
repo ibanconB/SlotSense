@@ -1,90 +1,66 @@
-from lib2to3.fixes.fix_input import context
-
 from core.step_base import Step
 
 class EvaluateWinsStep(Step):
     """
-        Evalua ganancias del board
-        Calcula valor de payout definido en config
+    Step responsable de evaluar las combinaciones ganadoras.
+    Puede manejar diferentes modos de evaluación según el config.
     """
 
-    #TODO: hay que crear metodos para diferentes formas de ganar
-
-    name = "evaluate_wins"
-
-    def run(self, context):
-        board= context.board
-        payouts = context.config.get("payouts",{})
-        mode = context.config.get("evaluationMode", "winningLines")
-
-        if board is None:
-            raise ValueError("Can´t evaluate wins without board")
+    def run(self, ctx):
+        mode = ctx.config.get("evaluationMode", "winningLines")
 
         if mode == "winningLines":
-            total_win, wins = self.evaluate_winning_lines(context)
-        else:
-            raise ValueError(f"Evaluation mode {mode} not supported")
+            ctx.total_win, ctx.wins = self.evaluate_winning_lines(ctx)
+        # En el futuro podrías añadir más modos, como:
+        # elif mode == "scatterPays":
+        #     ctx.total_win, ctx.wins = self.evaluate_scatter_pays(ctx)
 
-        context.wins = wins
-        context.total_win = total_win
-        context.events.append("wins_evaluated")
+        ctx.events.append("wins_evaluated")
 
-    # ==============================================================
-    # EVALUATION METHODS
-    # ==============================================================
+    # Aquí pegamos el método genérico:
+    def evaluate_winning_lines(self, ctx):
+        board = ctx.board
+        config = ctx.config
+        payouts = config.get("payouts", {})
+        paylines = config.get("paylines", [])
+        wild_symbol = config.get("wild_symbol")
+        non_paying = set(config.get("non_paying_symbols", []))
+        min_match = config.get("min_match", 3)
+        bet = ctx.bet
 
-    def evaluate_winning_lines(self, context):
-        """
-        Evalúa filas horizontales: paga si hay 3+ símbolos consecutivos iguales.
-        """
-        board = context.board
-        payouts = context.config.get("payouts", {})
-        bet = context.bet
-        cols = context.config.get("cols", 3)
         total_win = 0
         wins = []
 
-        # Si el board es plano (lista única), dividir en filas
-        if board and isinstance(board[0], str):
-            board = [board[i:i + cols] for i in range(0, len(board), cols)]
+        if not board or not paylines:
+            return 0, []
 
-        for row_idx, row in enumerate(board):
-            streak_symbol = row[0]
-            streak_len = 1
+        for line_index, line_coords in enumerate(paylines):
+            line_symbols = [board[r][c] for r, c in line_coords]
+            base_symbol = next(
+                (s for s in line_symbols if s != wild_symbol and s not in non_paying),
+                None
+            )
+            if base_symbol is None:
+                continue
 
-            for col in row[1:]:
-                if col == streak_symbol:
-                    streak_len += 1
+            streak = 0
+            for symbol in line_symbols:
+                if symbol == base_symbol or symbol == wild_symbol:
+                    streak += 1
                 else:
-                    if streak_len >= 3:
-                        win = payouts.get(streak_symbol, 0) * streak_len * bet
-                        if win > 0:
-                            wins.append({
-                                "row": row_idx,
-                                "symbol": streak_symbol,
-                                "count": streak_len,
-                                "win": win
-                            })
-                            total_win += win
-                    streak_symbol = col
-                    streak_len = 1
+                    break
 
-            # revisa racha final
-            if streak_len >= 3:
-                win = payouts.get(streak_symbol, 0) * streak_len * bet
-                if win > 0:
+            if streak >= min_match:
+                symbol_payout = payouts.get(base_symbol, 0)
+                win_amount = symbol_payout * streak * bet
+                if win_amount > 0:
+                    total_win += win_amount
                     wins.append({
-                        "row": row_idx,
-                        "symbol": streak_symbol,
-                        "count": streak_len,
-                        "win": win
+                        "line": line_index,
+                        "symbol": base_symbol,
+                        "count": streak,
+                        "win": win_amount
                     })
-                    total_win += win
 
         return total_win, wins
-
-
-
-
-
 

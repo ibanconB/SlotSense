@@ -58,15 +58,16 @@ class RNG:
         return self._record(label, seq[-1][0])  # fallback
 
     def fork(self, tag: str):
-        """
-        Crea un sub-RNG derivado de la semilla actual + tag.
-        Permite obtener secuencias deterministas por Step.
-        """
         h = hashlib.blake2s(f"{self.seed}|{tag}".encode(), digest_size=8).hexdigest()
         new_seed = int(h, 16)
+        child = RNG(new_seed, debug=self.debug)
+
         if self.debug:
             if not hasattr(self, "forks"):
                 self.forks = {}
             self.forks[tag] = new_seed
 
-        return RNG(new_seed, debug=self.debug)
+            # compartir el mismo registro de trazas
+            child.trace = self.trace
+
+        return child
