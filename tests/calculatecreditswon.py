@@ -14,7 +14,7 @@ config = {
 }
 
 ctx = SpinContext(bet=1.0, config=config)
-ctx.rng = RNG(ctx.seed, debug=True)
+ctx.rng = RNG(ctx.seed, debug=False)
 
 engine = GenericEngine()
 
