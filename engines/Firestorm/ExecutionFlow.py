@@ -12,9 +12,38 @@ class Firestorm(BaseEngine):
         ]
         super().__init__(steps)
 
+    def initializeInjections(self, ctx):
+        rows = ctx.config["rows"]
+        cols = ctx.config["cols"]
+
+        ctx.state["injections"] = [
+            [None for _ in range(cols)]
+            for _ in range(rows)
+        ]
+
+    def setWildSymbols(self, ctx):
+        inj_cfg = ctx.config.get("symbol_injection", {})
+        chance = inj_cfg.get("wild_chance", 0)  # porcentaje
+        wild_sym = ctx.config["wild_symbol"]
+
+        rows = ctx.config["rows"]
+        cols = ctx.config["cols"]
+
+        rng = ctx.rng.fork("WildInjection")
+        injections = ctx.state["injections"]
+
+        for r in range(rows):
+            for c in range(cols):
+                roll = rng.rand("wild.roll") * 100
+
+                if roll < chance:
+                    injections[r][c] = wild_sym
+
     def spin(self, context, as_json=False):
         context.events.append("spin_start")
         context.config["active_reels"] = context.config.get("reels")
+
+        self.initializeInjections(context)
 
         for step in self.steps:
             step.run(context)

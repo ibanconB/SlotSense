@@ -42,6 +42,11 @@ FIRESTORM_CONFIG = {
     "wild_symbol": 6,
     "non_paying_symbols": [7],
 
+    "symbol_injection": {
+        "wild_chance": 0.5,
+        "bonus_chance": 0.0
+    },
+
     # --- Líneas ganadoras (paylines) ---
     "paylines": [
         # filas horizontales
