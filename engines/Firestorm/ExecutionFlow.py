@@ -21,16 +21,16 @@ class Firestorm(BaseEngine):
             for _ in range(rows)
         ]
 
-    def setWildSymbols(self, ctx):
-        inj_cfg = ctx.config.get("symbol_injection", {})
+    def setWildSymbols(self, context):
+        inj_cfg = context.config.get("symbol_injection", {})
         chance = inj_cfg.get("wild_chance", 0)  # porcentaje
-        wild_sym = ctx.config["wild_symbol"]
+        wild_sym = context.config["wild_symbol"]
 
-        rows = ctx.config["rows"]
-        cols = ctx.config["cols"]
+        rows = context.config["rows"]
+        cols = context.config["cols"]
 
-        rng = ctx.rng.fork("WildInjection")
-        injections = ctx.state["injections"]
+        rng = context.rng.fork("WildInjection")
+        injections = context.state["injections"]
 
         for r in range(rows):
             for c in range(cols):
@@ -38,6 +38,34 @@ class Firestorm(BaseEngine):
 
                 if roll < chance:
                     injections[r][c] = wild_sym
+
+    def setBonusSymbols(self, context):
+        inj_cfg = context.config.get("symbol_injection", {})
+        chance = inj_cfg.get("bonus_chance",0)
+        bonus_sym = context.config.get("bonus_symbol")
+
+        rows = context.config["rows"]
+        cols = context.config["cols"]
+
+        rng = context.rng.fork("BonusInjection")
+        injections = context.state["injections"]
+
+        bonus_count = 0
+        bonus_max = 0
+
+        for r in range(rows):
+            for c in range(cols):
+
+                if bonus_count >= bonus_max:
+                    return
+
+                roll = rng.rand("bonus.roll")*100
+
+                if roll < chance:
+                    injections[r][c] = bonus_sym
+                    bonus_count +=1
+
+
 
     def spin(self, context, as_json=False):
         context.events.append("spin_start")

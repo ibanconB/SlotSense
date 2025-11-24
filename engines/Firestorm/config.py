@@ -12,11 +12,11 @@ FIRESTORM_CONFIG = {
     # --- Probabilidades o distribución ---
     # (en el caso de reels, no se usan directamente)
     "reels": [
-        [1, 2, 3, 4, 5, 6, 4, 2, 3, 1, 5, 4, 3, 6],
-        [2, 3, 4, 5, 1, 6, 3, 1, 3, 2, 4, 5, 6, 1],
-        [3, 4, 5, 6, 1, 2, 2, 5, 3, 1, 4, 6, 2, 5],
-        [4, 5, 6, 1, 1, 2, 3, 6, 4, 1, 5, 2, 3, 3],
-        [5, 6, 5, 1, 2, 3, 4, 1, 6, 2, 3, 4, 5, 4]
+        [1, 2, 3, 4, 5, 1, 4, 2, 3, 1, 5, 4, 3, 5],
+        [2, 3, 4, 5, 1, 1, 3, 1, 3, 2, 4, 5, 1, 1],
+        [3, 4, 5, 2, 1, 2, 2, 5, 3, 1, 4, 3, 2, 5],
+        [4, 5, 4, 1, 1, 2, 3, 5, 4, 1, 5, 2, 3, 3],
+        [5, 1, 5, 1, 2, 3, 4, 1, 1, 2, 3, 4, 5, 4]
     ],
 
     # --- Reels para modo Free Spins ---
@@ -43,8 +43,8 @@ FIRESTORM_CONFIG = {
     "non_paying_symbols": [7],
 
     "symbol_injection": {
-        "wild_chance": 0.5,
-        "bonus_chance": 0.0
+        "wild_chance": 3.0,
+        "bonus_chance": 0.5
     },
 
     # --- Líneas ganadoras (paylines) ---
@@ -73,8 +73,8 @@ FIRESTORM_CONFIG = {
     # --- Bonus y Free Spins ---
     "bonus_symbol": 7,
     "free_spins_trigger": 3,
-    "free_spins_awarded": 10,
+    "free_spins_awarded": 8,
 
     # --- Opciones varias ---
-    "debug": True,
+    "debug": False,
 }
