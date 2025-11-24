@@ -51,7 +51,7 @@ class Firestorm(BaseEngine):
         injections = context.state["injections"]
 
         bonus_count = 0
-        bonus_max = 0
+        bonus_max =context.config.get("bonus_max")
 
         for r in range(rows):
             for c in range(cols):
@@ -71,8 +71,17 @@ class Firestorm(BaseEngine):
         context.events.append("spin_start")
         context.config["active_reels"] = context.config.get("reels")
 
+        context.state.setdefault("free_spins_left", 0)
+        context.state.setdefault("is_free_spin", False)
+
+        fs_left = context.state["free_spins_left"]
+        context.state["is_free_spin"] = fs_left > 0
+        print("FS Left:", context.state["free_spins_left"],
+              "Is FS:", context.state["is_free_spin"])
+
         self.initializeInjections(context)
         self.setWildSymbols(context)
+        self.setBonusSymbols(context)
 
         #TODO: add bonus symbols injections
 

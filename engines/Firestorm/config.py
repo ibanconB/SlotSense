@@ -44,7 +44,7 @@ FIRESTORM_CONFIG = {
 
     "symbol_injection": {
         "wild_chance": 3.0,
-        "bonus_chance": 0.5
+        "bonus_chance": 100
     },
 
     # --- Líneas ganadoras (paylines) ---
@@ -72,6 +72,7 @@ FIRESTORM_CONFIG = {
 
     # --- Bonus y Free Spins ---
     "bonus_symbol": 7,
+    "bonus_max":3,
     "free_spins_trigger": 3,
     "free_spins_awarded": 8,
 
