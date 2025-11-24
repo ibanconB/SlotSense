@@ -26,7 +26,9 @@ def run_test(engine, spins, bet, config, seed=None, json_output=False):
         result = engine.spin(ctx)
 
         if spins == 1:
+            print()
             print(json.dumps(result, separators=(',', ':')))
+            print()
             if json_output:
                 return  # si pedimos JSON, no mostramos nada más
 
