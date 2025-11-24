@@ -11,20 +11,28 @@ class BuildReelBoardStep(Step):
         rows = context.config.get("rows")
         cols = context.config.get("cols")
 
+
         if not reels or len(reels) != cols:
             raise ValueError("Config must define a reels list with one list per column")
 
 
         board =[[None for _ in range(cols)] for _ in range(rows)]
-
         rng = context.rng.fork(self.__class__.__name__)
+
+        injections = context.state.get("injections")
 
         for col in range(cols):
             reel = reels[col]
             reel_len =len(reel)
             start_pos = rng.randint(0, reel_len - 1, label=f"reel_{col}_start")
             for row in range(rows):
-                symbol = reel[(start_pos + row) % reel_len]
+                forced = injections[row][col] if injections else None
+
+                if forced is not None:
+                    symbol = forced
+                else:
+                    symbol = reel[(start_pos + row) % reel_len]
+
                 board[row][col] = symbol
 
         context.board = board

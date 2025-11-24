@@ -44,6 +44,9 @@ class Firestorm(BaseEngine):
         context.config["active_reels"] = context.config.get("reels")
 
         self.initializeInjections(context)
+        self.setWildSymbols(context)
+
+        #TODO: add bonus symbols injections
 
         for step in self.steps:
             step.run(context)
